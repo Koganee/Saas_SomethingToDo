@@ -1,0 +1,29 @@
+#login-form {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+#login-form input,
+#login-form textarea {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    width: 800px;
+    font-size: 16px;
+}
+.login-btn {
+    background-color: #10b981;
+    color: rgb(255, 255, 255);
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+    width: 823px;
+    padding: 10px;
+    border-radius: 6px;
+}
