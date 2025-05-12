@@ -264,18 +264,3 @@ body {
     padding: 10px;
     border-radius: 6px;
 }
-#next-page-btn {
-    background-color: #3b82f6;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: bold;
-    transition: background-color 0.2s ease;
-    height: 500px;
-}
-#next-page-btn:hover {
-    background-color: #25eb67;
-}

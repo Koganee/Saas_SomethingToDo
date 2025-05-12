@@ -22,21 +22,23 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const db = getFirestore(app);
 
+const maximumEventsShown = 10;
+
 // Attach event listener in main.js or a separate file
 document.getElementById("add-event-btn").addEventListener("click", openAddEventTab);
 
 // Function to load events from Firestore
 async function loadEvents() {
-    const eventList = document.getElementById("event-list");
-    const today = new Date();
-    eventList.innerHTML = ""; // Clear existing events
+    var i = 0;
 
     const querySnapshot = await getDocs(collection(db, "planned_events"));
+    const eventList = document.getElementById("event-list");
+    eventList.innerHTML = ""; // Clear existing events
+
     querySnapshot.forEach((doc) => {
-        const event = doc.data();
-        const eventDate = new Date(event.date);
-        if (eventDate >= today) {
+        if (i < maximumEventsShown) {
             var eventImage;
+            const event = doc.data();
             if(event.category === "music") {
                 eventImage = "/event_images/music.jpg";
             }
@@ -52,7 +54,7 @@ async function loadEvents() {
             else if(event.category === "art") {
                 eventImage = "/event_images/art.jpg";
             }
-
+    
             const card = document.createElement("div");
             card.className = "event-card";
             card.innerHTML = `
@@ -71,6 +73,8 @@ async function loadEvents() {
                 </div>
             `;
             eventList.appendChild(card);
+    
+            i++;
         }
     });
 }
@@ -83,17 +87,6 @@ export async function addEvent(event) {
         loadEvents(); // Reload events after adding a new one
     } catch (e) {
         console.error("Error adding document: ", e);
-    }
-}
-
-// Function to delete an event from Firestore
-async function deleteEvent(eventId) {
-    try {
-        await deleteDoc(doc(db, "planned_events", eventId));
-        console.log("Event deleted");
-        loadEvents(); // Reload events after deleting
-    } catch (e) {
-        console.error("Error deleting document: ", e);
     }
 }
 
@@ -175,83 +168,4 @@ function openAddEventTab()
             addEvent(newEvent);
         });
     }
-}
-// Function to add a new event to Firestore
-async function addUser(newUser) {
-    console.log("Adding user:", newUser);
-    try {
-        const docRef = await addDoc(collection(db, "user_account_information"), newUser);
-        console.log("Document written with ID: ", docRef.id);
-    } catch (e) {
-        console.error("Error adding document: ", e);
-    }
-}
-
-const signUpForm = document.getElementById("signup-form");
-
-signUpForm.addEventListener("submit", function(event) {
-    event.preventDefault();  // Prevent the form from actually submitting (page reload)
-    
-    const username = document.getElementById("username").value;
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-
-    const newUser = {
-        username: username,
-        email: email,
-        password: password,
-    };
-    addUser(newUser);
-});
-
-document.getElementById("next-page-btn").addEventListener("click", nextEvents);
-
-async function nextEvents()
-{
-    const today = new Date();
-    const eventList = document.getElementById("event-list");
-    eventList.innerHTML = ""; // Clear existing events
-
-    const querySnapshot = await getDocs(collection(db, "planned_events"));
-    querySnapshot.forEach((doc) => {
-        const event = doc.data();
-        const eventDate = new Date(event.date);
-        if (eventDate >= today) {
-            var eventImage;
-            if(event.category === "music") {
-                eventImage = "/event_images/music.jpg";
-            }
-            else if(event.category === "technology") {
-                eventImage = "/event_images/technology.jpg";
-            }
-            else if(event.category === "sports") {  
-                eventImage = "/event_images/sports.jpg";
-            }
-            else if(event.category === "literature") {
-                eventImage = "/event_images/literature.jpg";
-            }
-            else if(event.category === "art") {
-                eventImage = "/event_images/art.jpg";
-            }
-
-            const card = document.createElement("div");
-            card.className = "event-card";
-            card.innerHTML = `
-                <div class="event-card-inner">
-                    <div class="left-content">
-                        <div class="event-title">${event.title}</div>
-                        <div class="event-meta">📅 ${event.date}</div>
-                        <div class="event-meta">🕰️ ${event.time}</div>
-                        <div class="event-meta">📍 ${event.location}</div>
-                        <div class="event-description">${event.description}</div>
-                        <button class="rsvp-button">RSVP</button>
-                    </div>
-                    <div class="right-diagonal">
-                        <img src="${eventImage}" alt="Event Image" class="event-image">
-                    </div>
-                </div>
-            `;
-            eventList.appendChild(card);
-        }
-    });
 }

@@ -27,3 +27,27 @@
     padding: 10px;
     border-radius: 6px;
 }
+#above_form {
+    position: absolute;
+    top: 35%;
+    right: 42%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 10px;
+}
+#main_header{
+    position: absolute;
+    top: 20%;
+    right: 45%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 10px;
+}
+body{
+    background-color: rgb(20, 7, 192);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}

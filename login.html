@@ -9,16 +9,16 @@
 <body>
   <div style="display: flex;">
     <div class="container" style="flex: 1; padding-right: 20px;">
-      <h1 style="color: #182492; font-size: 80px;">Welcome Back!</h1>
-      <h2>Log in to continue exploring local events and activities.</h2>
+      <h1 id = "main_header" style="color: #ffffff; font-size: 80px;">Welcome Back!</h1>
+      <h2 id ="above_form" style="color: #ffffff;">Log in to continue exploring local events and activities.</h2>
       <form id="login-form" class="form">
         <input type="email" id="email" placeholder="Email" required />
         <input type="password" id="password" placeholder="Password" required />
         <button type="submit" class="login-btn">Log In</button>
-        <p>Don't have an account? <a href="/index.html">Sign up</a></p>
+        <p style="color: #ffffff;">Don't have an account? <a href="/index.html" style="color: #ffffff;">Sign up</a></p>
       </form>
     </div>
   </div>
-  <script type="module" src="/main.js"></script>
+  <script type="module" src="/login.js"></script>
 </body>
 </html>
