@@ -38,6 +38,7 @@ document.getElementById('login-form').addEventListener('submit', async (event) =
 
         if (user.email === email && user.password === password) {
             userExport = user;
+            localStorage.setItem("username", user.username);
             window.location.href = "dashboard.html";
             return;
         } 

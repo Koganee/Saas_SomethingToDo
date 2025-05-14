@@ -22,78 +22,95 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const db = getFirestore(app);
 
-const maximumEventsShown = 10;
+var index = 0;
 
 // Attach event listener in main.js or a separate file
 document.getElementById("add-event-btn").addEventListener("click", openAddEventTab);
 
-// Function to load events from Firestore
-async function loadEvents() {
-    var i = 0;
+var index = 0;
+const PAGE_SIZE = 5;
 
-    const querySnapshot = await getDocs(collection(db, "planned_events"));
+// Function to load events from Firestore
+async function loadEvents(startIndex) {
     const eventList = document.getElementById("event-list");
+    const today = new Date();
     eventList.innerHTML = ""; // Clear existing events
 
-    querySnapshot.forEach((doc) => {
-        if (i < maximumEventsShown) {
-            var eventImage;
-            const event = doc.data();
-            if(event.category === "music") {
-                eventImage = "/event_images/music.jpg";
-            }
-            else if(event.category === "technology") {
-                eventImage = "/event_images/technology.jpg";
-            }
-            else if(event.category === "sports") {  
-                eventImage = "/event_images/sports.jpg";
-            }
-            else if(event.category === "literature") {
-                eventImage = "/event_images/literature.jpg";
-            }
-            else if(event.category === "art") {
-                eventImage = "/event_images/art.jpg";
-            }
-    
-            const card = document.createElement("div");
-            card.className = "event-card";
-            card.innerHTML = `
-                <div class="event-card-inner">
-                    <div class="left-content">
-                        <div class="event-title">${event.title}</div>
-                        <div class="event-meta">📅 ${event.date}</div>
-                        <div class="event-meta">🕰️ ${event.time}</div>
-                        <div class="event-meta">📍 ${event.location}</div>
-                        <div class="event-description">${event.description}</div>
-                        <button class="rsvp-button">RSVP</button>
-                    </div>
-                    <div class="right-diagonal">
-                        <img src="${eventImage}" alt="Event Image" class="event-image">
-                    </div>
-                </div>
-            `;
-            eventList.appendChild(card);
-    
-            i++;
+    const querySnapshot = await getDocs(collection(db, "planned_events"));
+    // Collect and filter events
+    let events = [];
+    querySnapshot.forEach((docSnap) => {
+        const event = docSnap.data();
+        event.id = docSnap.id; // Save the document ID for later use
+        const eventDate = new Date(event.date);
+        if (eventDate >= today) {
+            events.push(event);
         }
     });
+
+    events.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    // Get the events for the current page
+    const pageEvents = events.slice(startIndex, startIndex + PAGE_SIZE);
+
+    // Render events
+    pageEvents.forEach(event => {
+        let eventImage;
+        if(event.category === "music") {
+            eventImage = "/event_images/music.jpg";
+        } else if(event.category === "technology") {
+            eventImage = "/event_images/technology.jpg";
+        } else if(event.category === "sports") {  
+            eventImage = "/event_images/sports.jpg";
+        } else if(event.category === "literature") {
+            eventImage = "/event_images/literature.jpg";
+        } else if(event.category === "art") {
+            eventImage = "/event_images/art.jpg";
+        }
+
+        const card = document.createElement("div");
+        card.className = "event-card";
+        card.innerHTML = `
+            <div class="event-card-inner">
+                <div class="left-content">
+                    <div class="event-title">${event.title}</div>
+                    <div class="event-meta">📅 ${event.date}</div>
+                    <div class="event-meta">🕰️ ${event.time}</div>
+                    <div class="event-meta">📍 ${event.location}</div>
+                    <div class="event-description">${event.description}</div>
+                    <button class="rsvp-button">RSVP</button>
+                </div>
+                <div class="right-diagonal">
+                    <img src="${eventImage}" alt="Event Image" class="event-image">
+                </div>
+            </div>
+        `;
+        eventList.appendChild(card);
+    });
+    const backBtn = document.createElement("button");
+    backBtn.textContent = "Back";
+    backBtn.id = "back-page-btn";
+    backBtn.addEventListener("click", function() {
+        index = Math.max(0, index - PAGE_SIZE);
+        loadEvents(index);
+    });
+
+    eventList.appendChild(backBtn);
 }
-  
-// Function to add a new event to Firestore
-export async function addEvent(event) {
+
+// Function to delete an event from Firestore
+async function deleteEvent(eventId) {
     try {
-        const docRef = await addDoc(collection(db, "planned_events"), event);
-        console.log("Document written with ID: ", docRef.id);
-        loadEvents(); // Reload events after adding a new one
+        await deleteDoc(doc(db, "planned_events", eventId));
+        console.log("Event deleted");
+        loadEvents(); // Reload events after deleting
     } catch (e) {
-        console.error("Error adding document: ", e);
+        console.error("Error deleting document: ", e);
     }
 }
 
 // Initial load of events
-loadEvents();
-
-document.getElementById("add-event-btn").addEventListener("click", openAddEventTab);
+loadEvents(0);
 
 function openAddEventTab()
 {
@@ -169,3 +186,32 @@ function openAddEventTab()
         });
     }
 }
+  
+// Function to add a new event to Firestore
+export async function addEvent(event) {
+    try {
+        const docRef = await addDoc(collection(db, "planned_events"), event);
+        console.log("Document written with ID: ", docRef.id);
+        loadEvents(); // Reload events after adding a new one
+    } catch (e) {
+        console.error("Error adding document: ", e);
+    }
+}
+
+document.getElementById("add-event-btn").addEventListener("click", openAddEventTab);
+
+document.getElementById("next-page-btn").addEventListener("click", nextEvents);
+
+async function nextEvents()
+{
+    index += PAGE_SIZE;
+    loadEvents(index);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const usernameElem = document.getElementById("username");
+    const username = localStorage.getItem("username");
+    if (usernameElem && username) {
+        usernameElem.textContent = "Hi " + username + "!";
+    }
+});

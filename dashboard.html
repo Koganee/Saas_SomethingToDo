@@ -11,12 +11,21 @@
     <div class="container" style="flex: 1; padding-right: 20px;">
       <h1 style="color: #182492; font-size: 80px;">Looking For Something To Do?</h1>
       <h2>Discover local events, join activities, and connect with your community.</h2>
-      <nav class = "navbar">
-        <button id="add-event-btn" class="btn">Add Event</button>
-      </nav>
-      <div id="event-list"></div>
+      <button id="add-event-btn" class="btn">Add Event</button>
+      <div id="event-container" style="display: flex; align-items: center; justify-content: space-between;">
+        <div id="event-list"></div>
+        <button id="next-page-btn" class="btn">Next Page</button>
+      </div>
     </div>
     <div style="width: 1px; background-color: #182492; height: 100;"></div>
+    <div class="container" style="flex: 1; padding-left: 20px;">
+      <h1 style="color: #182492; font-size: 60px; position: relative; text-align: center; width: 100%; text-decoration: underline;">Your Profile</h1>
+      <div id="profile-container" style="display: flex; flex-direction: column; gap: 10px;">
+        <p id="username" style="color: #182492; font-size: 40px; margin: 0;"></p>
+        <p style="color: #182492; font-size: 40px; margin: 0;">Let's see what events you have coming up.</p>
+        <button id="logout-btn" class="btn">Log Out</button>
+      </div>
+    </div>
   <script type="module" src="/dashboard_script.js"></script>
 </body>
 </html>
