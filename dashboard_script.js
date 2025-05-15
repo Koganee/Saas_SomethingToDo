@@ -215,3 +215,30 @@ document.addEventListener("DOMContentLoaded", () => {
         usernameElem.textContent = "Hi " + username + "!";
     }
 });
+
+loadJoinedEvents();
+
+// Load events the current user has joined (assuming userId is available)
+async function loadJoinedEvents() {
+    // Reference: users/{userId}/user_events_joined
+    const userId = localStorage.getItem("id");
+    if (!userId) {
+        console.warn("No user ID found in localStorage. Cannot load joined events.");
+        return;
+    }
+    const joinedEventsRef = collection(db, "user_account_information", userId, "user_events_joined");
+    try {
+        const querySnapshot = await getDocs(joinedEventsRef);
+
+        // Example: collect joined events
+        let joinedEvents = [];
+        querySnapshot.forEach((docSnap) => {
+            joinedEvents.push({ id: docSnap.id, ...docSnap.data() });
+        });
+
+        // Do something with joinedEvents (e.g., render them)
+        console.log("Joined events:", joinedEvents);
+    } catch (error) {
+        console.error("Error loading joined events:", error);
+    }
+}

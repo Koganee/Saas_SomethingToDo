@@ -274,7 +274,6 @@ body {
     font-size: 16px;
     font-weight: bold;
     transition: background-color 0.2s ease;
-    height: 500px;
 }
 #next-page-btn:hover {
     background-color: #25eb67;
