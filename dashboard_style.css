@@ -3,6 +3,7 @@ body {
     margin: 0;
     padding: 0;
     background: #f3f4f6;
+    font-weight: bold;;
 }
 
 .container {
@@ -274,6 +275,7 @@ body {
     font-size: 16px;
     font-weight: bold;
     transition: background-color 0.2s ease;
+    width: 100%;
 }
 #next-page-btn:hover {
     background-color: #25eb67;

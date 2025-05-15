@@ -29,6 +29,7 @@ document.getElementById("add-event-btn").addEventListener("click", openAddEventT
 
 var index = 0;
 const PAGE_SIZE = 5;
+let allEvents = [];
 
 // Function to load events from Firestore
 async function loadEvents(startIndex) {
@@ -49,6 +50,7 @@ async function loadEvents(startIndex) {
     });
 
     events.sort((a, b) => new Date(a.date) - new Date(b.date));
+    allEvents = events;
 
     // Get the events for the current page
     const pageEvents = events.slice(startIndex, startIndex + PAGE_SIZE);
@@ -78,7 +80,7 @@ async function loadEvents(startIndex) {
                     <div class="event-meta">🕰️ ${event.time}</div>
                     <div class="event-meta">📍 ${event.location}</div>
                     <div class="event-description">${event.description}</div>
-                    <button class="rsvp-button">RSVP</button>
+                    <button class="rsvp-button" onclick="addRSVPEvent('${event.id}')">RSVP</button>
                 </div>
                 <div class="right-diagonal">
                     <img src="${eventImage}" alt="Event Image" class="event-image">
@@ -96,17 +98,6 @@ async function loadEvents(startIndex) {
     });
 
     eventList.appendChild(backBtn);
-}
-
-// Function to delete an event from Firestore
-async function deleteEvent(eventId) {
-    try {
-        await deleteDoc(doc(db, "planned_events", eventId));
-        console.log("Event deleted");
-        loadEvents(); // Reload events after deleting
-    } catch (e) {
-        console.error("Error deleting document: ", e);
-    }
 }
 
 // Initial load of events
@@ -216,29 +207,147 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-loadJoinedEvents();
+await loadRSVPEvents(0);
 
-// Load events the current user has joined (assuming userId is available)
-async function loadJoinedEvents() {
-    // Reference: users/{userId}/user_events_joined
+async function addRSVPEvent(eventId) {
+    const userId = localStorage.getItem("id");
+    const joinedEventsRef = collection(db, "user_account_information", userId, "user_events_joined");
+    const event = allEvents.find(e => e.id === eventId);
+    if (!event) {
+        console.error("Event not found for RSVP:", eventId);
+        return;
+    }
+    try {
+        // Check if RSVP already exists
+        const querySnapshot = await getDocs(joinedEventsRef);
+        const alreadyJoined = querySnapshot.docs.some(docSnap => docSnap.data().eventId === eventId);
+        if (alreadyJoined) {
+            console.log("You have already RSVP'd to this event.");
+            return;
+        }
+        const docRef = await addDoc(joinedEventsRef, {
+            eventId: event.id,
+            eventName: event.title,
+            eventDate: event.date,
+            eventLocation: event.location,
+            eventTime: event.time,
+            eventDescription: event.description,
+            eventCategory: event.category,
+        });
+        console.log("RSVP added with ID: ", docRef.id);
+        await loadRSVPEvents(0);
+    }
+    catch (e) {
+        console.log("Error adding RSVP", e);
+    }
+}
+
+// Make addRSVPEvent available globally for inline onclick
+window.addRSVPEvent = addRSVPEvent;
+
+let allRSVPEvents = [];
+
+async function loadRSVPEvents(startIndex) {
+    const rsvpList = document.getElementById("rsvp-event-list");
+    const today = new Date();
+    rsvpList.innerHTML = ""; // Clear existing events
+
     const userId = localStorage.getItem("id");
     if (!userId) {
-        console.warn("No user ID found in localStorage. Cannot load joined events.");
+        console.warn("No user ID found in localStorage. Cannot load RSVP events.");
         return;
     }
     const joinedEventsRef = collection(db, "user_account_information", userId, "user_events_joined");
-    try {
-        const querySnapshot = await getDocs(joinedEventsRef);
-
-        // Example: collect joined events
-        let joinedEvents = [];
+    getDocs(joinedEventsRef).then((querySnapshot) => {
+        let rsvpEvents = [];
         querySnapshot.forEach((docSnap) => {
-            joinedEvents.push({ id: docSnap.id, ...docSnap.data() });
+            const event = docSnap.data();
+            event.id = docSnap.id; // Save the document ID for later use
+            const eventDate = new Date(event.eventDate);
+            if (eventDate >= today) {
+                rsvpEvents.push(event);
+            }
         });
 
-        // Do something with joinedEvents (e.g., render them)
-        console.log("Joined events:", joinedEvents);
-    } catch (error) {
-        console.error("Error loading joined events:", error);
+        rsvpEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+        allRSVPEvents = rsvpEvents;
+
+        // Get the events for the current page
+        const pageEvents = rsvpEvents.slice(startIndex, startIndex + PAGE_SIZE);
+
+        // Render events
+        pageEvents.forEach(event => {
+            let eventImage;
+            if(event.eventCategory === "music") {
+                eventImage = "/event_images/music.jpg";
+            } else if(event.eventCategory === "technology") {
+                eventImage = "/event_images/technology.jpg";
+            } else if(event.eventCategory === "sports") {  
+                eventImage = "/event_images/sports.jpg";
+            } else if(event.eventCategory === "literature") {
+                eventImage = "/event_images/literature.jpg";
+            } else if(event.eventCategory === "art") {
+                eventImage = "/event_images/art.jpg";
+            }
+
+            const card = document.createElement("div");
+            card.className = "event-card";
+            card.innerHTML = `
+                <div class="event-card-inner">
+                    <div class="left-content">
+                        <div class="event-title">${event.eventName}</div>
+                        <div class="event-meta  ">📅 ${event.eventDate}</div>
+                        <div class="event-meta">🕰️ ${event.eventTime}</div>
+                        <div class="event-meta">📍 ${event.eventLocation}</div>
+                        <div class="event-description">${event.eventDescription}</div>
+                        <button class="rsvp-button" onclick="deleteRSVPEvent('${event.id}')">Cancel RSVP</button>
+                    </div>
+                    <div class="right-diagonal">
+                        <img src="${eventImage}" alt="Event Image" class="event-image">
+                    </div>
+                </div>
+            `;
+            rsvpList.appendChild(card);
+        }
+        );
+        const backBtn = document.createElement("button");
+        backBtn.textContent = "Back";
+        backBtn.id = "back-page-btn";
+        backBtn.addEventListener("click", function() {
+            index = Math.max(0, index - PAGE_SIZE);
+            loadRSVPEvents(index);
+        });
+        rsvpList.appendChild(backBtn);
+        const nextBtn = document.createElement("button");
+        nextBtn.textContent = "Next";
+        nextBtn.id = "next-page-btn";
+        nextBtn.addEventListener("click", function() {
+            index += PAGE_SIZE;
+            loadRSVPEvents(index);
+        });
+        rsvpList.appendChild(nextBtn);
     }
+    ).catch((error) => {
+        console.error("Error loading RSVP events:", error);
+    });
 }
+
+function deleteRSVPEvent(eventId) {
+    const userId = localStorage.getItem("id");
+    const joinedEventsRef = collection(db, "user_account_information", userId, "user_events_joined");
+    const eventDocRef = doc(joinedEventsRef, eventId);
+    deleteDoc(eventDocRef).then(() => {
+        console.log("RSVP Event deleted");
+        loadRSVPEvents(0); // Reload events after deleting
+    }).catch((error) => {
+        console.error("Error deleting RSVP event: ", error);
+    });
+}
+
+window.deleteRSVPEvent = deleteRSVPEvent;
+
+document.getElementById("logout-btn").addEventListener("click", function() {
+    localStorage.removeItem("id");
+    localStorage.removeItem("username");
+    window.location.href = "index.html";
+});

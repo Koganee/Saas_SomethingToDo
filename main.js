@@ -76,7 +76,7 @@ async function loadEvents(startIndex) {
                     <div class="event-meta">🕰️ ${event.time}</div>
                     <div class="event-meta">📍 ${event.location}</div>
                     <div class="event-description">${event.description}</div>
-                    <button class="rsvp-button">RSVP</button>
+                    <button class="rsvp-button" onclick="loginRedirect()">RSVP</button>
                 </div>
                 <div class="right-diagonal">
                     <img src="${eventImage}" alt="Event Image" class="event-image">
@@ -223,3 +223,7 @@ async function nextEvents()
     index += PAGE_SIZE;
     loadEvents(index);
 }
+function loginRedirect() {
+    window.location.href = "login.html";
+}
+window.loginRedirect = loginRedirect;
