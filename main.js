@@ -112,7 +112,7 @@ async function deleteEvent(eventId) {
 // Initial load of events
 loadEvents(0);
 
-document.getElementById("add-event-btn").addEventListener("click", openAddEventTab);
+document.getElementById("add-event-btn").addEventListener("click", pageRedirect);
 
 function openAddEventTab()
 {
@@ -227,3 +227,7 @@ function loginRedirect() {
     window.location.href = "login.html";
 }
 window.loginRedirect = loginRedirect;
+
+function pageRedirect() {
+    window.location.href = "login.html";
+}

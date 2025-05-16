@@ -351,3 +351,7 @@ document.getElementById("logout-btn").addEventListener("click", function() {
     localStorage.removeItem("username");
     window.location.href = "index.html";
 });
+
+document.getElementById("chat-button").addEventListener("click", function() {
+    window.location.href = "chat.html";
+});

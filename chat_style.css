@@ -1,0 +1,31 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f3f4f6;
+    font-weight: bold;;
+}
+
+.container {
+    position: relative;
+    max-width: 900px;
+    padding: 20px;
+    overflow: hidden;
+}
+
+.chat-load-btn {
+    display: inline-block;
+    padding: 10px 16px;
+    background-color: #2563eb;
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    width: 100%;
+    border: none;
+}
+.chat-load-btn:hover {
+    background-color: #ffffff;
+    color:#2563eb;
+    transform: translateY(-2px);
+}

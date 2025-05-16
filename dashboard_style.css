@@ -295,3 +295,20 @@ body {
 #back-page-btn:hover {
     background-color: #6e1809;
 }
+#chat-button{
+    bottom: 20px;
+    right: 20px;
+    background-color: #00358a;
+    color: white;
+    border: 2px solid black;
+    cursor: pointer;
+    font-size: 24px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    height: 150px;
+    font-weight: bold;
+}
+#chat-button:hover {
+    background-color: #41a8ec;
+    transform: scale(1.025);
+}
