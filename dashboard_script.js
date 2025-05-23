@@ -184,6 +184,7 @@ export async function addEvent(event) {
         const docRef = await addDoc(collection(db, "planned_events"), event);
         console.log("Document written with ID: ", docRef.id);
         loadEvents(); // Reload events after adding a new one
+        await createEventChat(docRef.id);
     } catch (e) {
         console.error("Error adding document: ", e);
     }
@@ -355,3 +356,14 @@ document.getElementById("logout-btn").addEventListener("click", function() {
 document.getElementById("chat-button").addEventListener("click", function() {
     window.location.href = "chat.html";
 });
+
+async function createEventChat(eventId) {
+    const chatReference = collection(db, "chat_messages_collection");
+    // Try to find the event in allEvents, fallback to eventId if not found
+    const event = allEvents.find(e => e.id === eventId);
+    await addDoc(chatReference, {
+        eventId: eventId,
+        eventName: event ? event.title : "Untitled Event",
+    });
+    console.log("Chat created for event ID: ", eventId);
+}

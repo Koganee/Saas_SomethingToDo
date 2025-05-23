@@ -28,4 +28,5 @@ body {
     background-color: #ffffff;
     color:#2563eb;
     transform: translateY(-2px);
+    text-shadow: none;
 }
